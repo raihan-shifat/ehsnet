@@ -1,0 +1,85 @@
+data:
+  img_dir: "D:/Shifat Raihan/mimage/medical image/data/ISIC2018/train/images"  # Absolute path to image directory
+  mask_dir: "D:/Shifat Raihan/mimage/medical image/data/ISIC2018/train/masks"  # Absolute path to mask directory
+  split_dir: "D:/Shifat Raihan/mimage/medical image/src/data/output"  # Absolute path to output directory containing split files
+  img_size: 256  # Image size to resize to
+  batch_size: 16  # Batch size for training
+  num_workers: 4  # Number of workers for data loading
+
+train:
+  epochs: 200  # Number of epochs to train
+  lr: 3e-4  # Learning rate
+  weight_decay: 1e-4  # Weight decay for regularization
+  device: cuda  # Use GPU if available
+  save_dir: "runs/isic18_ehsnet"  # Directory where trained models will be saved
+  deep_supervision: true  # Enable deep supervision
+  amp: true  # Enable mixed precision training
+
+model:
+  name: EHSNet  # Model name
+  num_classes: 1  # Number of output classes (for segmentation, this could be 1)
+  pretrained: true  # Whether to use pretrained weights
+
+loss:
+  name: HybridLoss  # Custom loss function
+  dice_weight: 0.4  # Weight for Dice loss component
+  focal_weight: 0.4  # Weight for Focal loss component
+  boundary_weight: 0.2  # Weight for boundary loss component
+  deep_supervision: true  # Enable deep supervision in the loss
+
+optimizer:
+  name: AdamW  # AdamW optimizer
+  lr: 3e-4  # Learning rate
+  weight_decay: 1e-4  # Weight decay for regularization
+
+scheduler:
+  name: CosineAnnealingWarmRestarts  # Scheduler for learning rate decay
+  T_0: 10  # Initial number of iterations for the scheduler
+  T_mult: 2  # Factor by which T_0 is multiplied after each restart
+  eta_min: 1e-6  # Minimum learning rate
+
+augmentation:
+  train:
+    - Resize:
+        height: 256
+        width: 256
+    - RandomRotate90:
+        p: 0.5  # Probability for random 90-degree rotation
+    - HorizontalFlip:
+        p: 0.5  # Probability for horizontal flip
+    - VerticalFlip:
+        p: 0.5  # Probability for vertical flip
+    - RandomBrightnessContrast:
+        brightness_limit: 0.2  # Brightness limit
+        contrast_limit: 0.2  # Contrast limit
+        p: 0.5  # Probability for applying this transformation
+    - RandomGamma:
+        gamma_limit: [80, 120]  # Gamma range for random gamma correction
+        p: 0.5  # Probability for random gamma correction
+    - CLAHE:
+        clip_limit: 4.0  # Clip limit for CLAHE
+        p: 0.5  # Probability for applying CLAHE
+    - HueSaturationValue:
+        hue_shift_limit: 20  # Hue shift limit
+        sat_shift_limit: 30  # Saturation shift limit
+        val_shift_limit: 20  # Value shift limit
+        p: 0.5  # Probability for applying this transformation
+    - CoarseDropout:
+        max_holes: 8  # Maximum number of holes to randomly drop
+        max_height: 32  # Maximum height of dropped holes
+        max_width: 32  # Maximum width of dropped holes
+        min_holes: 1  # Minimum number of holes to drop
+        fill_value: 0  # Fill value for the holes
+        p: 0.5  # Probability for applying CoarseDropout
+    - Normalize:
+        mean: [0.485, 0.456, 0.406]  # Mean values for normalization
+        std: [0.229, 0.224, 0.225]  # Standard deviation for normalization
+    - ToTensorV2:  # Convert image to tensor format (required by albumentations)
+  val:
+    - Resize:
+        height: 256
+        width: 256  # Resize validation images
+    - Normalize:
+        mean: [0.485, 0.456, 0.406]  # Mean values for normalization
+        std: [0.229, 0.224, 0.225]  # Standard deviation for normalization
+    - ToTensorV2:  # Convert image to tensor format (required by albumentations)

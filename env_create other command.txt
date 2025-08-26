@@ -1,0 +1,28 @@
+Create Env
+py -3.11 -m venv mimage1
+
+Activate
+.\mimage1\Scripts\Activate.ps1
+
+
+
+
+1.
+command to run prepare split
+python .\prepare_split.py --root "D:\Shifat Raihan\mimage\medical image\data\ISIC2017\train" --out "D:\Shifat Raihan\mimage\medical image\src\data\output"
+
+
+2. For train
+
+ python src/train.py --config configs/ehsnet.yaml
+
+
+3. For evaluate 
+
+python src/evaluate.py --config configs/ehsnet.yaml --checkpoint .\runs\isic17_ehsnet\best_model.pth
+
+
+4.  To Run predicted output image
+python .\src\utils\enf_pred.py 
+
+

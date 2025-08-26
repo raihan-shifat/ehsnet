@@ -1,5 +1,5 @@
 Create Env
-py -3.11 -m venv mimage1
+py -3.12 -m venv mimage1
 
 Activate
 .\mimage1\Scripts\Activate.ps1
